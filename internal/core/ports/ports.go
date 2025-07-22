@@ -8,6 +8,7 @@ import (
 
 type FeedRepository interface {
 	CarregarFeeds(ctx context.Context) error
+	ObterURLsRecentes(categoria string, limite int) ([]string, error)
 	ObterURLNoticiaAleatoria(categoria string) (string, error)
 }
 
@@ -16,6 +17,7 @@ type ScraperNoticias interface {
 	BuscarComentarios(ctx context.Context, settings *domain.SettingsNoticia, tipoOrdenacao string) (*domain.Noticia, error)
 }
 
-type ServicoComentarios interface {
-	ObterComentariosDeNoticia(ctx context.Context, categoria string, tipoOrdenacao string) (*domain.Noticia, error)
+type ServicoNoticias interface {
+	ObtereNoticias(ctx context.Context, categoria string, tipoOrdenacao string, limite int) ([]domain.SettingsNoticia, error)
+	ObterNoticiaAleatoria(ctx context.Context, categoria string, tipoOrdenacao string) (*domain.Noticia, error)
 }

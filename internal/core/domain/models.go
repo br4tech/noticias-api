@@ -1,22 +1,19 @@
 package domain
 
-// Comentario representa um comentário com suas respostas.
 type Comentario struct {
 	Mensagem  string   `json:"mensagem"`
 	Respostas []string `json:"respostas"`
 }
 
-// Noticia representa o resultado final que será retornado pela API.
 type Noticia struct {
-	Titulo      string       `json:"titulo"`
-	Total       int          `json:"total"`
-	Comentarios []Comentario `json:"comentarios"`
+	Titulo string `json:"titulo"`
+	Total  int    `json:"total"`
 }
 
-// SettingsNoticia armazena os metadados extraídos do HTML de uma notícia.
 type SettingsNoticia struct {
-	URI          string
-	IDExterno    string
-	CanonicalURL string
-	Title        string
+	IDExterno    string `json:"id"`
+	CanonicalURL string `json:"url"`
+	Title        string `json:"title"`
+	SubTitle     string `json:"sub_title"`
+	Description  string `json:"description"`
 }

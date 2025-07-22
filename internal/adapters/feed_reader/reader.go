@@ -72,3 +72,19 @@ func (r *feedRepository) ObterURLNoticiaAleatoria(categoria string) (string, err
 
 	return urls[rand.Intn(len(urls))], nil
 }
+
+func (r *feedRepository) ObterURLsRecentes(categoria string, limite int) ([]string, error) {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+
+	urls, ok := r.cache[categoria]
+	if !ok || len(urls) == 0 {
+		return nil, errors.New("categoria não encontrada ou sem notícias: " + categoria)
+	}
+
+	if len(urls) < limite {
+		return urls, nil
+	}
+
+	return urls[:limite], nil
+}

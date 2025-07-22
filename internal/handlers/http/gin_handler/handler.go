@@ -10,41 +10,47 @@ import (
 )
 
 type Handler struct {
-	servico ports.ServicoComentarios
+	servico ports.ServicoNoticias
 	logger  *slog.Logger
 }
 
-func NovoHandler(servico ports.ServicoComentarios, logger *slog.Logger) *Handler {
+func NovoHandler(servico ports.ServicoNoticias, logger *slog.Logger) *Handler {
 	return &Handler{servico: servico, logger: logger}
 }
 
 func (h *Handler) SetupRoutes(router *gin.Engine) {
-	router.GET("/", h.obterComentariosHandler)
-	router.GET("/:categoria", h.obterComentariosHandler)
-	router.GET("/populares", h.obterComentariosHandler)
-	router.GET("/:categoria/populares", h.obterComentariosHandler)
+	// router.GET("/favicon.ico", func(c *gin.Context) {
+	// 	c.Status(http.StatusNoContent)
+	// })
+
+	router.GET("/", h.obterNoticiasHandler)
+	router.GET("/:categoria", h.obterNoticiasHandler)
+	router.GET("/populares", h.obterNoticiasHandler)
+	router.GET("/:categoria/populares", h.obterNoticiasHandler)
 }
 
-func (h *Handler) obterComentariosHandler(c *gin.Context) {
+func (h *Handler) obterNoticiasHandler(c *gin.Context) {
 	categoria := strings.ToLower(c.Param("categoria"))
 	if categoria == "" {
 		categoria = "todas"
 	}
 
 	tipoOrdenacao := "recentes"
-	if strings.HasSuffix(c.FullPath(), "/populares") {
+	if strings.Contains(c.FullPath(), "/populares") { // Verificação mais robusta
 		tipoOrdenacao = "populares"
 	}
 
-	log := h.logger.With("categoria", categoria, "ordenação", tipoOrdenacao)
-	log.Info("recebida nova requisição")
+	const limiteDeNoticias = 10
 
-	noticia, err := h.servico.ObterComentariosDeNoticia(c.Request.Context(), categoria, tipoOrdenacao)
+	log := h.logger.With("categoria", categoria, "ordenação", tipoOrdenacao, "limite", limiteDeNoticias)
+	log.Info("recebida nova requisição para múltiplas notícias")
+
+	noticias, err := h.servico.ObtereNoticias(c.Request.Context(), categoria, tipoOrdenacao, limiteDeNoticias)
 	if err != nil {
 		log.Error("erro no serviço", "erro", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "falha ao processar a requisição"})
 		return
 	}
 
-	c.JSON(http.StatusOK, noticia)
+	c.JSON(http.StatusOK, noticias)
 }
